@@ -4418,6 +4418,14 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
             *p++ = 0;
             return -2;
         }
+        if (wParam == VK_TAB && shift_state == 2) {	/* Ctrl-Tab */
+            p += sprintf((char *) p, "\x1B[27;5;9~");
+            return p - output;
+        }
+        if (wParam == VK_TAB && shift_state == 3) {	/* Ctrl-Shift-Tab */
+            p += sprintf((char *) p, "\x1B[27;6;9~");
+            return p - output;
+        }
         if (wParam == VK_TAB && shift_state == 1) {     /* Shift tab */
             *p++ = 0x1B;
             *p++ = '[';
