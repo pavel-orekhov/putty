@@ -445,6 +445,10 @@ static void close_session(void *ignored_context)
         InsertMenu(popup_menus[i].menu, IDM_DUPSESS, MF_BYCOMMAND | MF_ENABLED,
                    IDM_RESTART, "&Restart Session");
     }
+
+    if (ignored_context==(void*)1) {
+        PostMessage(wgs.term_hwnd, WM_COMMAND, IDM_RESTART, 0);
+    }
 }
 
 const unsigned cmdline_tooltype =
@@ -1089,13 +1093,13 @@ static void win_seat_connection_fatal(Seat *seat, const char *msg)
 {
     char *title = dupprintf("%s Fatal Error", appname);
     show_mouseptr(true);
-    MessageBox(wgs.term_hwnd, msg, title, MB_ICONERROR | MB_OK);
+    int res = MessageBox(wgs.term_hwnd, msg, title, MB_ICONERROR | MB_RETRYCANCEL | MB_DEFBUTTON1);
     sfree(title);
 
     if (conf_get_int(conf, CONF_close_on_exit) == FORCE_ON)
         PostQuitMessage(1);
     else {
-        queue_toplevel_callback(close_session, NULL);
+        queue_toplevel_callback(close_session, ((void*)(res == IDRETRY?1:0)));
     }
 }
 
